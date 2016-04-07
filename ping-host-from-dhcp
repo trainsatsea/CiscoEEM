@@ -1,0 +1,24 @@
+event manager session cli username "username" privilege 15
+event manager applet ping-host-from-dhcp
+ event syslog severity-notification pattern "%LINEPROTO-5-UPDOWN: Line protocol on Interface Vlan200, changed state to up"
+ action 100 cli command "enable"
+ action 110 commment "wait to let the client get the chcp as interface needs to get up"
+ action 120 wait 5
+ action 130 cli command "show ip dhcp bind"
+ action 140 foreach line "$_cli_result"
+ action 150  regexp "([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)" "$line" ipadd
+ action 160  if $_regexp_result eq "1"
+ action 170   puts "$ipadd is identified as ip address"
+ action 180  end
+ action 190 end
+ action 200 syslog priority errors msg "maintenance start using $ipadd. This address will be monitored"
+ action 210 commment "address has been discovered, now install ip sla probe to monitor"
+ action 220 cli command "enable"
+ action 230 cli command "conf t"
+ action 240 cli command "no ip sla 1"
+ action 250 cli command "ip sla 1"
+ action 260 cli command "icmp-echo $ipadd source-interface Vlan200"
+ action 270 cli command "frequency 30"
+ action 280 cli command "ip sla schedule 1 life forever start-time now"
+ action 290 syslog priority errors msg "Monitoring active"
+ action 210 commment "now the address is active monitorred"
