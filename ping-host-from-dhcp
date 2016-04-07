@@ -21,4 +21,4 @@ event manager applet ping-host-from-dhcp
  action 270 cli command "frequency 30"
  action 280 cli command "ip sla schedule 1 life forever start-time now"
  action 290 syslog priority errors msg "Monitoring active"
- action 300 commment "now the address is active monitorred"
+ action 300 comment "now the address is active monitorred"
